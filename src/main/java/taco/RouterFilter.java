@@ -40,7 +40,7 @@ public class RouterFilter implements Filter {
 		HttpServletResponse response = (HttpServletResponse) resp;
 		PreparedFlow flow = router.execute(request.getRequestURI(),
 				request.getParameterMap());
-		request.setAttribute("mvcaur_userIsAdmin", router.isUserAdmin());
+		request.setAttribute("taco_userIsAdmin", router.isUserAdmin());
 		if (flow == null) {
 			// no url mapping for this request, continue as if nothing happened.
 			chain.doFilter(req, resp);
