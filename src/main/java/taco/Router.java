@@ -77,13 +77,5 @@ public abstract class Router {
 		return flow;
 	}
 
-	/**
-	 * Return true to signal that the request is being made by an admin
-	 * 
-	 * @return
-	 */
-	public boolean isUserAdmin() {
-		return false;
-	}
 
 }

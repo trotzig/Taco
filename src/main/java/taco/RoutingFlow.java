@@ -12,7 +12,6 @@ import taco.def.DefaultObjectFactory;
 import taco.def.ForwardRenderer;
 import taco.def.JsonRenderer;
 
-
 /**
  * A {@link RoutingFlow} is a representation of a routing flow through MVCaur.
  * For a request, each routing flow is checked to see if it knows how to handle
@@ -35,15 +34,16 @@ public class RoutingFlow {
 	private String mapping;
 	private RegexpMapper mapper;
 	private ObjectFactory objectFactory;
+	private Protector protector;
 
 	public RoutingFlow(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
 	}
-	
+
 	public RoutingFlow() {
 		this.objectFactory = new DefaultObjectFactory();
 	}
-	
+
 	public String getMapping() {
 		return mapping;
 	}
@@ -114,6 +114,30 @@ public class RoutingFlow {
 	 */
 	public RoutingFlow renderAsJson() {
 		this.renderer = new JsonRenderer();
+		return this;
+	}
+
+	/**
+	 * Sets a protector to this routing flow
+	 * 
+	 * @param protector
+	 */
+	public void setProtector(Protector protector) {
+		this.protector = protector;
+	}
+
+	public Protector getProtector() {
+		return protector;
+	}
+
+	/**
+	 * Instruct the routing flow to be protected by a {@link Protector}
+	 * 
+	 * @param protector
+	 * @return
+	 */
+	public RoutingFlow protect(Protector protector) {
+		setProtector(protector);
 		return this;
 	}
 
@@ -217,7 +241,7 @@ public class RoutingFlow {
 	 * 
 	 * @param clazz
 	 */
-	public void throughServlet(Class<? extends Servlet> clazz) {
+	public RoutingFlow throughServlet(Class<? extends Servlet> clazz) {
 		Servlet s = loadedServlets.get(clazz);
 		if (s == null) {
 			try {
@@ -229,7 +253,8 @@ public class RoutingFlow {
 			loadedServlets.put(clazz, s);
 		}
 		this.servlet = s;
-		this.controller = null; //reset controller
+		this.controller = null; // reset controller
+		return this;
 	}
 
 }

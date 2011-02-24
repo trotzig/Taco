@@ -40,7 +40,6 @@ public class RouterFilter implements Filter {
 		HttpServletResponse response = (HttpServletResponse) resp;
 		PreparedFlow flow = router.execute(request.getRequestURI(),
 				request.getParameterMap());
-		request.setAttribute("taco_userIsAdmin", router.isUserAdmin());
 		if (flow == null) {
 			// no url mapping for this request, continue as if nothing happened.
 			chain.doFilter(req, resp);
@@ -57,6 +56,12 @@ public class RouterFilter implements Filter {
 	private void routeThrough(HttpServletRequest request,
 			HttpServletResponse response, PreparedFlow flow)
 			throws ServletException, IOException {
+		Protector prot = flow.getFlow().getProtector();
+		if (prot != null) {
+			if (!prot.allow(request)) {
+				throw new StatusCodeException(403 , "You are not authorized to perform this request");
+			}
+		}
 		RoutingContinuation cont = flow.getContinuation();
 		if (cont.getController() != null) {
 			Object result = cont.getController().execute();
