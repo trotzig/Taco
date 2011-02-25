@@ -1,6 +1,7 @@
 package taco;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -38,8 +39,16 @@ public class RouterFilter implements Filter {
 			FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) resp;
+		Map<String, String[]> requestParams = null;
+		try {
+			requestParams = request.getParameterMap();
+		} catch (UnsupportedOperationException e) {
+			// expected in cases where the parameter map has been wrapped by
+			// something unmodifiable, see e.g. this bug:
+			// http://code.google.com/p/googleappengine/issues/detail?id=3081&q=UnsupportedOperationException&colspec=ID%20Type%20Component%20Status%20Stars%20Summary%20Language%20Priority%20Owner%20Log
+		}
 		PreparedFlow flow = router.execute(request.getRequestURI(),
-				request.getParameterMap());
+				requestParams);
 		if (flow == null) {
 			// no url mapping for this request, continue as if nothing happened.
 			chain.doFilter(req, resp);
