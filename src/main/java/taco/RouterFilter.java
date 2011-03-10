@@ -13,10 +13,16 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+
 public class RouterFilter implements Filter {
 	public static ServletContext servletContext;
 
 	private Router router;
+	
+	private UserService userService = UserServiceFactory.getUserService();
+	
 	private static final String correctWebXml = "<filter>\n"
 			+ "\t<filter-name>routingFilter</filter-name>\n"
 			+ "\t<filter-class>taco.RouterFilter</filter-class>\n"
@@ -55,6 +61,8 @@ public class RouterFilter implements Filter {
 		} else {
 			try {
 				routeThrough(request, response, flow);
+			} catch (RedirectException e) {
+				response.sendRedirect(e.getRedirectUri());
 			} catch (StatusCodeException e) {
 				//respond with the status code
 				response.sendError(e.getCode(), e.getMessage());
@@ -68,7 +76,7 @@ public class RouterFilter implements Filter {
 		Protector prot = flow.getFlow().getProtector();
 		if (prot != null) {
 			if (!prot.allow(request)) {
-				throw new StatusCodeException(403 , "You are not authorized to perform this request");
+				throw new RedirectException(userService.createLoginURL(request.getRequestURI()), "You are not authorized to perform this request");
 			}
 		}
 		RoutingContinuation cont = flow.getContinuation();
