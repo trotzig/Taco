@@ -42,6 +42,16 @@ public class RouterTest {
 		assertEquals("3", c.getStringDefault());
 	}
 	
+	@Test
+	public void testNegativeValues() {
+		RoutingFlow flow = new RoutingFlow().route("/{number:int}/{longer:long}/{doubler:double}").through(AllParamTypes.class);
+		AllParamTypes c = (AllParamTypes) flow.execute("/-42/-4711/-47.11", emptyRequestParams).getController();
+		assertNotNull(c);
+		assertEquals(Integer.valueOf(-42), c.getNumber());
+		assertEquals(Long.valueOf("-4711"), c.getLonger());
+		assertEquals(Double.valueOf(-47.11d), c.getDoubler());
+	}
+	
 	
 	@Test
 	public void wrongTypeDoesNotMatch() {

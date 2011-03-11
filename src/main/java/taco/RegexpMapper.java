@@ -35,19 +35,19 @@ public class RegexpMapper {
 			}
 		}),
 		STRING(String.class, "([^\\/]+)"),
-		INT(Integer.class, "([0-9]+)", new ValueParser() {
+		INT(Integer.class, "(-?[0-9]+)", new ValueParser() {
 			@Override
 			public Object parse(String s) {
 				return Integer.parseInt(s);
 			}
 		}),
-		LONG(Long.class, "([0-9]+)", new ValueParser() {
+		LONG(Long.class, "(-?[0-9]+)", new ValueParser() {
 			@Override
 			public Object parse(String s) {
 				return Long.parseLong(s);
 			}
 		}),
-		DOUBLE(Double.class, "([0-9,.]+)", new ValueParser() {
+		DOUBLE(Double.class, "(-?[0-9,.]+)", new ValueParser() {
 			@Override
 			public Object parse(String s) {
 				return Double.parseDouble(s);
