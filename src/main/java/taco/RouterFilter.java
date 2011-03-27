@@ -81,6 +81,10 @@ public class RouterFilter implements Filter {
 		}
 		RoutingContinuation cont = flow.getContinuation();
 		if (cont.getController() != null) {
+			if (cont.getController() instanceof RequestAware) {
+				//inject the underlying request object
+				((RequestAware)cont.getController()).setRequest(request);
+			}
 			Object result = cont.getController().execute();
 			request.setAttribute("taco", result);
 			request.setAttribute("controller", cont.getController());
