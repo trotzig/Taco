@@ -20,10 +20,10 @@ public class JsonRenderer implements Renderer {
 			throws ServletException, IOException {
 		String callbackFunc = request.getParameter("callback");
 		if (callbackFunc != null) {
-			response.setContentType("text/javascript");
+			response.setContentType("text/javascript; charset=utf-8");
 			response.getWriter().println(callbackFunc + "(");
 		} else {
-			response.setContentType("application/json");
+			response.setContentType("application/json; charset=utf-8");
 		}
 		Gson gson = new Gson();
 		gson.toJson(result, response.getWriter());
