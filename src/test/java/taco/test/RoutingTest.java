@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import taco.PreparedFlow;
 import taco.Router;
+import taco.test.controller.MockControllerRequest;
 import taco.test.controller.NoMapping;
 
 
@@ -22,7 +23,7 @@ public class RoutingTest {
 			}
 		};
 		router.init();
-		PreparedFlow flow = router.execute("/");
+		PreparedFlow flow = router.execute(new MockControllerRequest("/"));
 		NoMapping controller = (NoMapping) flow.getContinuation().getController();
 		assertEquals("no-mapping", controller.execute());
 	}
@@ -35,7 +36,7 @@ public class RoutingTest {
 				route("/{name}").through(NoMapping.class).renderedBy("/start.jsp");
 			}
 		};
-		PreparedFlow flow = router.execute("/hello/foo/bar");
+		PreparedFlow flow = router.execute(new MockControllerRequest("/hello/foo/bar"));
 		assertNull(flow);
 	}
 }

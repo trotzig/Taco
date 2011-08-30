@@ -2,7 +2,8 @@ package taco;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import taco.def.DefaultObjectFactory;
 
@@ -34,10 +35,9 @@ public abstract class Router {
 	 * @param requestParams
 	 * @return
 	 */
-	public final PreparedFlow execute(String requestURI,
-			Map<String, String[]> requestParams) {
+	public final PreparedFlow execute(HttpServletRequest request) {
 		for (RoutingFlow flow : flows) {
-			RoutingContinuation cont = flow.execute(requestURI, requestParams);
+			RoutingContinuation cont = flow.execute(request);
 
 			if (cont != null) {
 				PreparedFlow pflow = new PreparedFlow();
@@ -47,16 +47,6 @@ public abstract class Router {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Execute without request params
-	 * 
-	 * @param uri
-	 * @return
-	 */
-	public PreparedFlow execute(String uri) {
-		return execute(uri, null);
 	}
 
 	/**

@@ -1,10 +1,19 @@
 package taco;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.Servlet;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import taco.RegexpMapper.ParamType;
 import taco.RegexpMapper.PreparedMapping;
@@ -149,20 +158,18 @@ public class RoutingFlow {
 	 *            .getRequestURI()
 	 * @return
 	 */
-	public RoutingContinuation execute(String requestURI,
-			Map<String, String[]> requestParams) {
-		PreparedMapping mapping = mapper.execute(requestURI);
+	public RoutingContinuation execute(HttpServletRequest request) {
+		PreparedMapping mapping = mapper.execute(request.getRequestURI());
 		if (mapping != null) {
-			return createContinuation(mapping, requestParams);
+			return createContinuation(mapping, request);
 		}
 		return null;
 	}
 
-	private RoutingContinuation createContinuation(PreparedMapping m,
-			Map<String, String[]> requestParams) {
+	private RoutingContinuation createContinuation(PreparedMapping m, HttpServletRequest request) {
 		RoutingContinuation cont = new RoutingContinuation();
 		if (controller != null) {
-			cont.setController(createController(objectFactory, m, requestParams));
+			cont.setController(createController(objectFactory, m, request));
 		} else if (servlet != null) {
 			try {
 				cont.setServlet(servlet);
@@ -173,15 +180,16 @@ public class RoutingFlow {
 		return cont;
 	}
 
-	private Controller<?> createController(ObjectFactory factory,
-			PreparedMapping m, Map<String, String[]> requestParams) {
+	private Controller<?> createController(ObjectFactory factory, PreparedMapping m, HttpServletRequest request) {
 		Controller<?> ctrl;
 		try {
 			ctrl = (Controller<?>) factory.create(controller);
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to create controller", e);
 		}
+
 		// first, set params within the url
+
 		Map<String, Object> urlParams = m.getMap();
 		for (Map.Entry<String, Object> entry : urlParams.entrySet()) {
 			try {
@@ -190,12 +198,53 @@ public class RoutingFlow {
 				// ignore missing method
 			}
 		}
+
 		// secondly, set all params from request parameters
-		if (requestParams != null) {
+
+		try {
+			@SuppressWarnings("unchecked")
+			Map<String, String[]> requestParams = request.getParameterMap();
 			for (Map.Entry<String, String[]> entry : requestParams.entrySet()) {
 				handleRequestParam(ctrl, entry);
 			}
+		} catch (UnsupportedOperationException e) {
+			// expected in cases where the parameter map has been wrapped by
+			// something unmodifiable, see e.g. this bug:
+			// http://code.google.com/p/googleappengine/issues/detail?id=3081&q=UnsupportedOperationException&colspec=ID%20Type%20Component%20Status%20Stars%20Summary%20Language%20Priority%20Owner%20Log
 		}
+
+		// thirdly, set params from file uploads
+
+		String contentType = request.getContentType();
+
+		if (contentType != null && contentType.startsWith("multipart/form-data")) {
+			ServletFileUpload upload = new ServletFileUpload();
+			try {
+				FileItemIterator iterator = upload.getItemIterator(request);
+				while (iterator.hasNext()) {
+					FileItemStream item = iterator.next();
+					if (!item.isFormField()) {
+						try {
+							InputStream stream = item.openStream();
+							ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
+							byte[] buffer = new byte[8192];
+							int len;
+							while ((len = stream.read(buffer, 0, buffer.length)) != -1) {
+								baos.write(buffer, 0, len);
+							}
+							setParam(ctrl, baos.toByteArray(), item.getFieldName());
+						} catch (NoSuchMethodException e) {
+							// ignore missing method
+						}
+					}
+				}
+			} catch (FileUploadException e) {
+				throw new RuntimeException(e);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
 		return ctrl;
 	}
 
