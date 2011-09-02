@@ -14,6 +14,7 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
 
 import taco.RegexpMapper.ParamType;
 import taco.RegexpMapper.PreparedMapping;
@@ -199,13 +200,13 @@ public class RoutingFlow {
 			}
 		}
 
-		// secondly, set all params from request parameters
+		// secondly, set all params from request parameters and non-multipart post data
 
 		try {
 			@SuppressWarnings("unchecked")
 			Map<String, String[]> requestParams = request.getParameterMap();
 			for (Map.Entry<String, String[]> entry : requestParams.entrySet()) {
-				handleRequestParam(ctrl, entry);
+				handleRequestParam(ctrl, entry.getKey(), entry.getValue()[0]);
 			}
 		} catch (UnsupportedOperationException e) {
 			// expected in cases where the parameter map has been wrapped by
@@ -213,29 +214,31 @@ public class RoutingFlow {
 			// http://code.google.com/p/googleappengine/issues/detail?id=3081&q=UnsupportedOperationException&colspec=ID%20Type%20Component%20Status%20Stars%20Summary%20Language%20Priority%20Owner%20Log
 		}
 
-		// thirdly, set params from file uploads
+		// thirdly, set params from multipart post data
 
 		String contentType = request.getContentType();
-
 		if (contentType != null && contentType.startsWith("multipart/form-data")) {
 			ServletFileUpload upload = new ServletFileUpload();
 			try {
 				FileItemIterator iterator = upload.getItemIterator(request);
 				while (iterator.hasNext()) {
 					FileItemStream item = iterator.next();
-					if (!item.isFormField()) {
-						try {
-							InputStream stream = item.openStream();
-							ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
-							byte[] buffer = new byte[8192];
-							int len;
-							while ((len = stream.read(buffer, 0, buffer.length)) != -1) {
-								baos.write(buffer, 0, len);
-							}
-							setParam(ctrl, baos.toByteArray(), item.getFieldName());
-						} catch (NoSuchMethodException e) {
-							// ignore missing method
+					String fieldName = item.getFieldName();
+					InputStream inputStream = item.openStream();
+					try {
+						if (item.isFormField()) {
+							handleRequestParam(ctrl, fieldName, Streams.asString(inputStream));
 						}
+						else {
+							ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
+							Streams.copy(inputStream, baos, true);
+							byte[] value = baos.toByteArray();
+							if (value.length > 0 || !item.getName().isEmpty()) {
+								setParam(ctrl, baos.toByteArray(), fieldName);
+							}
+						}
+					} catch (NoSuchMethodException e) {
+						// ignore missing method
 					}
 				}
 			} catch (FileUploadException e) {
@@ -248,11 +251,10 @@ public class RoutingFlow {
 		return ctrl;
 	}
 
-	private void handleRequestParam(Controller<?> ctrl,
-			Map.Entry<String, String[]> entry) {
+	private void handleRequestParam(Controller<?> ctrl, String name, String value) {
 		for (ParamType pt : ParamType.values()) {
 			try {
-				setParam(ctrl, pt.parse(entry.getValue()[0]), entry.getKey());
+				setParam(ctrl, pt.parse(value), name);
 				// success, break loop
 				return;
 			} catch (NoSuchMethodException e) {
