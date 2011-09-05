@@ -227,7 +227,7 @@ public class RoutingFlow {
 					InputStream inputStream = item.openStream();
 					try {
 						if (item.isFormField()) {
-							handleRequestParam(ctrl, fieldName, Streams.asString(inputStream));
+							handleRequestParam(ctrl, fieldName, Streams.asString(inputStream, "UTF-8"));
 						}
 						else {
 							ByteArrayOutputStream baos = new ByteArrayOutputStream(8192);
