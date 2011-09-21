@@ -40,7 +40,7 @@ public class RoutingFlow {
 
 	private Class<? extends Controller<?>> controller = VoidController.class;
 	private Servlet servlet;
-	private Renderer renderer;
+	private Renderer renderer = new VoidRenderer();
 	private String mapping;
 	private RegexpMapper mapper;
 	private ObjectFactory objectFactory;
