@@ -74,6 +74,11 @@ public class RouterFilter implements Filter {
 				//inject the underlying request object
 				((RequestAware)cont.getController()).setRequest(request);
 			}
+			if (cont.getController() instanceof CookieAware) {
+				CookieHandler cookieHandler = new CookieHandler(request, response);
+				((CookieAware)cont.getController()).setCookieHandler(cookieHandler);
+			}
+			
 			Object result = cont.getController().execute();
 			request.setAttribute("taco", result);
 			request.setAttribute("controller", cont.getController());
