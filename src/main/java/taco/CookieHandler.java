@@ -17,7 +17,7 @@ public class CookieHandler {
 	public void setCookie(String name, String value, Integer validTime) {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setMaxAge(validTime);
-		
+		cookie.setPath("/");
 		this.response.addCookie(cookie);
 	}
 	
@@ -25,7 +25,7 @@ public class CookieHandler {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setMaxAge(validTime);
 		cookie.setDomain(domain);
-		
+		cookie.setPath("/");
 		this.response.addCookie(cookie);
 	}
 	
