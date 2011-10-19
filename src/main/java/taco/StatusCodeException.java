@@ -11,22 +11,26 @@ package taco;
 public class StatusCodeException extends RuntimeException {
 
 	/**
-	 * The request cannot be fulfilled due to bad syntax
-	 */
+	* 400
+	* The request cannot be fulfilled due to bad syntax
+	*/
 	public static final int BAD_REQUEST = 400;
 	
 	/**
-	 * Similar to 403 Forbidden, but specifically for use when authentication is possible but has failed or not yet been provided.
-	 */
+	* 401
+	* Similar to 403 Forbidden, but specifically for use when authentication is possible but has failed or not yet been provided.
+	*/
 	public static final int UNAUTHORIZED = 401;
 	
 	/**
-	 * The request was a legal request, but the server is refusing to respond to it.
-	 * Unlike a 401 Unauthorized response, authenticating will make no difference.
-	 */
+	* 403
+	* The request was a legal request, but the server is refusing to respond to it.
+	* Unlike a 401 Unauthorized response, authenticating will make no difference.
+	*/
 	public static final int FORBIDDEN = 403;
 	 
 	/**
+	 * 404
 	 * The requested resource could not be found but may be available again in the future.
 	 */
 	public static final int NOT_FOUND = 404;
