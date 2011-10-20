@@ -34,8 +34,12 @@ public class StatusCodeException extends RuntimeException {
 	 * The requested resource could not be found but may be available again in the future.
 	 */
 	public static final int NOT_FOUND = 404;
-	
-	
+
+	/**
+	 * Internal Server Error
+	 */
+	public static final int INTERNAL_SERVER_ERROR = 500;
+
 	private int code;
 
 	/**
