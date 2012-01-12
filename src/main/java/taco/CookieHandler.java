@@ -14,19 +14,23 @@ public class CookieHandler {
 		this.response = response;
 	}
 
-	public void setCookie(String name, String value, Integer validTime) {
+	public Cookie setCookie(String name, String value, Integer validTime) {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setMaxAge(validTime);
 		cookie.setPath("/");
 		this.response.addCookie(cookie);
+		
+		return cookie;
 	}
 	
-	public void setCookie(String name, String value, Integer validTime, String domain) {
+	public Cookie setCookie(String name, String value, Integer validTime, String domain) {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setMaxAge(validTime);
 		cookie.setDomain(domain);
 		cookie.setPath("/");
 		this.response.addCookie(cookie);
+		
+		return cookie;
 	}
 	
 	public Cookie getCookie(String name) {
