@@ -46,5 +46,9 @@ public class CookieHandler {
 		}
 		return null;
 	}
+	
+	public void deleteCookie(String name) {
+		setCookie(name, null, 0);
+	}
 
 }

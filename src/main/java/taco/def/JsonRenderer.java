@@ -18,6 +18,7 @@ public class JsonRenderer implements Renderer {
 	public void render(Object result, Controller<?> controller,
 			HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		
 		String callbackFunc = request.getParameter("callback");
 		if (callbackFunc != null) {
 			response.setContentType("text/javascript; charset=utf-8");
