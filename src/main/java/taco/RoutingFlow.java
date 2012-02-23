@@ -45,6 +45,7 @@ public class RoutingFlow {
 	private RegexpMapper mapper;
 	private ObjectFactory objectFactory;
 	private Protector protector;
+	private CachePolicy cachePolicy = new DontCachePolicy(); 
 
 	public RoutingFlow(ObjectFactory objectFactory) {
 		this.objectFactory = objectFactory;
@@ -77,6 +78,14 @@ public class RoutingFlow {
 
 	public Servlet getServlet() {
 		return servlet;
+	}
+	
+	public CachePolicy getCachePolicy() {
+		return cachePolicy;
+	}
+	
+	public void setCachePolicy(CachePolicy cachePolicy) {
+		this.cachePolicy = cachePolicy;
 	}
 
 	public void setRenderer(Renderer renderer) {
@@ -305,6 +314,17 @@ public class RoutingFlow {
 		}
 		this.servlet = s;
 		this.controller = null; // reset controller
+		return this;
+	}
+
+	/**
+	 * Set a custom cache policy for your request
+	 * 
+	 * @param cachePolicy
+	 * @return
+	 */
+	public RoutingFlow withCachePolicy(CachePolicy cachePolicy) {
+		setCachePolicy(cachePolicy);
 		return this;
 	}
 

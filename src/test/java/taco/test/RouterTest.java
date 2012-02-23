@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
+import taco.CachePolicy;
 import taco.Controller;
 import taco.RoutingFlow;
 import taco.test.controller.AllParamTypes;
@@ -55,6 +56,13 @@ public class RouterTest {
 		AllParamTypes c = (AllParamTypes) flow.execute(new MockControllerRequest("/123")).getController(); 
 		assertNotNull(c);
 		assertEquals(Integer.valueOf(123), c.getNumber());
+	}
+	
+	
+	
+	@Test 
+	public void cacheSettingForRouteAffectsHeaders() {
+		assertEquals(1, new RoutingFlow().withCachePolicy(new CachePolicy(1)).getCachePolicy().getExpirationInMinutes());
 	}
 
 

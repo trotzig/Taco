@@ -50,6 +50,18 @@ public class RouterFilter implements Filter {
 		} else {
 			try {
 				routeThrough(request, response, flow);
+				
+				//Set correct cache headers
+				if (!response.containsHeader("Expires")) {
+					CachePolicy policy = flow.getFlow().getCachePolicy();
+					int min = policy.getExpirationInMinutes();
+					long expiresMS = 0;
+					if (min > 0) {
+						expiresMS = System.currentTimeMillis() + (min * 60 * 1000);
+					}
+					response.setDateHeader("Expires", expiresMS);
+				}
+				
 			} catch (RedirectException e) {
 				response.sendRedirect(e.getRedirectUri());
 			} catch (StatusCodeException e) {
