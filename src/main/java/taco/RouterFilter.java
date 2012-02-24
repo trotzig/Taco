@@ -49,8 +49,6 @@ public class RouterFilter implements Filter {
 			chain.doFilter(req, resp);
 		} else {
 			try {
-				routeThrough(request, response, flow);
-				
 				//Set correct cache headers
 				if (!response.containsHeader("Expires")) {
 					CachePolicy policy = flow.getFlow().getCachePolicy();
@@ -61,6 +59,9 @@ public class RouterFilter implements Filter {
 					}
 					response.setDateHeader("Expires", expiresMS);
 				}
+				
+				routeThrough(request, response, flow);
+				
 				
 			} catch (RedirectException e) {
 				response.sendRedirect(e.getRedirectUri());
@@ -144,6 +145,15 @@ public class RouterFilter implements Filter {
 
 		router.init();
 
+	}
+	
+	/**
+	 * Convenient method, used mainly for testing 
+	 * 
+	 * @param router
+	 */
+	public void setRouter(Router router) {
+		this.router = router;
 	}
 
 
