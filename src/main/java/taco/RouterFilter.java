@@ -56,6 +56,9 @@ public class RouterFilter implements Filter {
 					long expiresMS = 0;
 					if (min > 0) {
 						expiresMS = System.currentTimeMillis() + (min * 60L * 1000L);
+						response.setHeader("Cache-Control", "public, max-age=" + (min * 60L));	
+					} else {
+						response.setHeader("Cache-Control", "no-cache");	
 					}
 					response.setDateHeader("Expires", expiresMS);
 				}
