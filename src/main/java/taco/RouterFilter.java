@@ -55,7 +55,7 @@ public class RouterFilter implements Filter {
 					int min = policy.getExpirationInMinutes();
 					long expiresMS = 0;
 					if (min > 0) {
-						expiresMS = System.currentTimeMillis() + (min * 60 * 1000);
+						expiresMS = System.currentTimeMillis() + (min * 60L * 1000L);
 					}
 					response.setDateHeader("Expires", expiresMS);
 				}
