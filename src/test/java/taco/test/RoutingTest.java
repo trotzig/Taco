@@ -57,6 +57,19 @@ public class RoutingTest {
 		assertNotNull(flow);
 		assertEquals(flow.getFlow().getRenderer().getClass(), VoidRenderer.class);
 	}
-	
-	
+
+	@Test
+	public void testRouteTesting() {
+		Router router = new Router() {
+			@Override
+			public void init() {
+				route("/article/{id}").through(NoMapping.class).renderedBy("/start.jsp");
+			}
+		};
+
+		router.init();
+
+		assertTrue(router.hasMatchingRoute("/article/123"));
+		assertFalse(router.hasMatchingRoute("/section/456"));
+	}
 }

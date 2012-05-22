@@ -138,7 +138,11 @@ public class RegexpMapper {
 		}
 		return map;
 	}
-	
+
+	public boolean matches(String uri) {
+		return pattern.matcher(uri).matches();
+	}
+
 	private String getParamName(int i) {
 		return paramNames.get(i);
 	}

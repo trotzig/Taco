@@ -49,6 +49,16 @@ public abstract class Router {
 		return null;
 	}
 
+	public boolean hasMatchingRoute(String uri) {
+		for (RoutingFlow flow : flows) {
+			if (flow.matches(uri)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/**
 	 * This is where all url mappings are configured.
 	 */

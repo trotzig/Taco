@@ -176,6 +176,10 @@ public class RoutingFlow {
 		return null;
 	}
 
+	public boolean matches(String uri) {
+		return mapper.matches(uri);
+	}
+
 	private RoutingContinuation createContinuation(PreparedMapping m, HttpServletRequest request) {
 		RoutingContinuation cont = new RoutingContinuation();
 		if (controller != null) {
