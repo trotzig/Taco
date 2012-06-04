@@ -1,7 +1,7 @@
 package taco.def;
 
 import taco.Controller;
-import taco.StatusCodeException;
+import taco.exception.StatusCodeException;
 
 public class DefaultController implements Controller<String> {
 

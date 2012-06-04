@@ -12,6 +12,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import taco.exception.ExitRoutingException;
+import taco.exception.RedirectException;
+import taco.exception.RouterMissingException;
+import taco.exception.StatusCodeException;
+
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
@@ -50,6 +55,7 @@ public class RouterFilter implements Filter {
 		} else {
 			try {
 				//Set correct cache headers
+				
 				if (!response.containsHeader("Expires")) {
 					CachePolicy policy = flow.getFlow().getCachePolicy();
 					int min = policy.getExpirationInMinutes();
@@ -58,13 +64,18 @@ public class RouterFilter implements Filter {
 						expiresMS = System.currentTimeMillis() + (min * 60L * 1000L);
 						response.setHeader("Cache-Control", "public, max-age=" + (min * 60L));	
 					} else {
-						response.setHeader("Cache-Control", "no-cache");	
+						response.setHeader("Cache-Control", "no-cache");
 					}
 					response.setDateHeader("Expires", expiresMS);
 				}
 				
-				routeThrough(request, response, flow);
-				
+				try {
+					routeThrough(request, response, flow);
+					
+				} catch (ExitRoutingException e) {
+					response.reset();
+					chain.doFilter(req, response);
+				}
 				
 			} catch (RedirectException e) {
 				response.sendRedirect(e.getRedirectUri());
