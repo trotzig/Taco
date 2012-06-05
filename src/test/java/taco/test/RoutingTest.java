@@ -1,10 +1,15 @@
 package taco.test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import taco.PreparedFlow;
 import taco.Router;
+import taco.RoutingFlow;
 import taco.VoidRenderer;
 import taco.test.controller.MockControllerRequest;
 import taco.test.controller.NoMapping;
@@ -71,5 +76,11 @@ public class RoutingTest {
 
 		assertTrue(router.hasMatchingRoute("/article/123"));
 		assertFalse(router.hasMatchingRoute("/section/456"));
+		
+		RoutingFlow flow = router.getMatchingRoute("/article/123");
+		assertEquals(NoMapping.class, flow.getController());
+		
+		assertNull(router.getMatchingRoute("/section/456"));
+		
 	}
 }
