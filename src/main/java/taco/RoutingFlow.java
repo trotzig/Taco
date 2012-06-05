@@ -23,7 +23,7 @@ import taco.def.ForwardRenderer;
 import taco.def.JsonRenderer;
 
 /**
- * A {@link RoutingFlow} is a representation of a routing flow through MVCaur.
+ * A {@link RoutingFlow} is a representation of a routing flow through Taco.
  * For a request, each routing flow is checked to see if it knows how to handle
  * the request. A routing flow knows what request it can handle, which
  * controller to execute and how to render the response.

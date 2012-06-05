@@ -49,15 +49,34 @@ public abstract class Router {
 		return null;
 	}
 
+	/**
+	 * Checks if this router has a matching route for a request
+	 * 
+	 * @param uri
+	 * @return
+	 */
 	public boolean hasMatchingRoute(String uri) {
+		return getMatchingRoute(uri) != null;
+	}
+	
+
+	/**
+	 * Gets a matching route for a request, or <code>null</code> if no matching route is found. 
+	 * 
+	 * @param uri
+	 * @return
+	 */
+	public RoutingFlow getMatchingRoute(String uri) {
 		for (RoutingFlow flow : flows) {
 			if (flow.matches(uri)) {
-				return true;
+				return flow;
 			}
 		}
 
-		return false;
+		return null;
 	}
+
+	
 
 	/**
 	 * This is where all url mappings are configured.
