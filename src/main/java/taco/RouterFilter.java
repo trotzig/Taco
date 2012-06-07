@@ -1,6 +1,7 @@
 package taco;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -12,7 +13,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import taco.exception.ExitRoutingException;
+import taco.exception.ContinueException;
 import taco.exception.RedirectException;
 import taco.exception.RouterMissingException;
 import taco.exception.StatusCodeException;
@@ -48,14 +49,21 @@ public class RouterFilter implements Filter {
 			FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) resp;
-		PreparedFlow flow = router.execute(request);
+		
+		doFlow(request, response, chain, null);
+	}
+	
+	protected void doFlow(HttpServletRequest request, HttpServletResponse response, 
+						  FilterChain chain, ArrayList<RoutingFlow> skipFlows) throws IOException, ServletException {
+		
+		PreparedFlow flow = router.execute(request, skipFlows);
+		
 		if (flow == null) {
 			// no url mapping for this request, continue as if nothing happened.
-			chain.doFilter(req, resp);
+			chain.doFilter(request, response);
 		} else {
 			try {
 				//Set correct cache headers
-				
 				if (!response.containsHeader("Expires")) {
 					CachePolicy policy = flow.getFlow().getCachePolicy();
 					int min = policy.getExpirationInMinutes();
@@ -72,9 +80,15 @@ public class RouterFilter implements Filter {
 				try {
 					routeThrough(request, response, flow);
 					
-				} catch (ExitRoutingException e) {
+				} catch (ContinueException e) {
+					if (skipFlows == null) {
+						skipFlows = new ArrayList<RoutingFlow>();
+					}
+					
+					skipFlows.add(flow.getFlow());
+					
 					response.reset();
-					chain.doFilter(req, response);
+					doFlow(request, response, chain, skipFlows);
 				}
 				
 			} catch (RedirectException e) {
@@ -85,6 +99,7 @@ public class RouterFilter implements Filter {
 			}
 		}
 	}
+	
 
 	private void routeThrough(HttpServletRequest request,
 			HttpServletResponse response, PreparedFlow flow)

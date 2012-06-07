@@ -36,9 +36,16 @@ public abstract class Router {
 	 * @return
 	 */
 	public final PreparedFlow execute(HttpServletRequest request) {
+		return execute(request, null);
+	}
+	
+	public final PreparedFlow execute(HttpServletRequest request, List<RoutingFlow> skipFlows) {
 		for (RoutingFlow flow : flows) {
+			if (skipFlows != null && skipFlows.contains(flow)) {
+				continue;
+			}
+			
 			RoutingContinuation cont = flow.execute(request);
-
 			if (cont != null) {
 				PreparedFlow pflow = new PreparedFlow();
 				pflow.setFlow(flow);

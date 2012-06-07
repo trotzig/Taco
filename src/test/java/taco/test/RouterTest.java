@@ -3,10 +3,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
 import taco.CachePolicy;
 import taco.Controller;
+import taco.PreparedFlow;
+import taco.Router;
 import taco.RoutingFlow;
 import taco.test.controller.AllParamTypes;
 import taco.test.controller.MockControllerRequest;
@@ -65,6 +70,52 @@ public class RouterTest {
 		assertEquals(1, new RoutingFlow().withCachePolicy(new CachePolicy(1)).getCachePolicy().getExpirationInMinutes());
 	}
 
-
+	@Test
+	public void oneRouting() throws Exception {
+		Router router = new Router() {
+			@Override
+			public void init() {
+				route("/123");
+				route("/456");
+				route("/789");
+			}
+		};
+		router.init();
+		
+		MockControllerRequest request = new MockControllerRequest("/456");
+		List<RoutingFlow> skip = new ArrayList<RoutingFlow>();
+		
+		PreparedFlow flow = router.execute(request, skip);
+		assertEquals("/456", flow.getFlow().getMapping());
+	}
 	
+	@Test
+	public void twoRoutings() throws Exception {
+		Router router = new Router() {
+			@Override
+			public void init() {
+				route("/000/{title}");
+				route("/123/{title}");
+				route("/123/{name}");
+				route("/999/{name}");
+			}
+		};
+		router.init();
+		
+		MockControllerRequest request = new MockControllerRequest("/123/nisse");
+		List<RoutingFlow> skip = new ArrayList<RoutingFlow>();
+		
+		PreparedFlow flow = router.execute(request, skip);
+		assertEquals("/123/{title}", flow.getFlow().getMapping());
+		
+		skip.add(flow.getFlow());
+		
+		flow = router.execute(request, skip);
+		assertEquals("/123/{name}", flow.getFlow().getMapping());
+		
+		skip.add(flow.getFlow());
+		
+		flow = router.execute(request, skip);
+		assertNull("no routes left", flow);
+	}
 }
