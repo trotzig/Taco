@@ -8,7 +8,8 @@ public class RedirectException extends StatusCodeException {
 
 	public enum Codes {
 		FOUND_302 (302),
-		TEMPORARY_REDIRECT_307 (307);
+		TEMPORARY_REDIRECT_307 (307),
+		MOVED_PERMANENTLY_301 (301);
 		
 		private final int code2;
 
